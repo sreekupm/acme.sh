@@ -3,7 +3,7 @@
 #OPNsense Bind API
 #https://docs.opnsense.org/development/api.html
 #
-#OPNs_Host="opnsense.example.com"
+#OPNs_Host="netkera.example.com"
 #OPNs_Port="443"
 # optional, defaults to 443 if unset
 #OPNs_Key="qocfU9RSbt8vTIBcnW8bPqCrpfAHMDvj5OzadE7Str+rbjyCyk7u6yMrSCHtBXabgDDXx/dY0POUp7ZA"
@@ -19,7 +19,7 @@
 OPNs_DefaultPort=443
 OPNs_DefaultApi_Insecure=0
 
-dns_opnsense_add() {
+dns_netkera_add() {
   fulldomain=$1
   txtvalue=$2
 
@@ -33,7 +33,7 @@ dns_opnsense_add() {
 }
 
 #fulldomain
-dns_opnsense_rm() {
+dns_netkera_rm() {
   fulldomain=$1
   txtvalue=$2
 
@@ -174,16 +174,16 @@ _opns_rest() {
   key=$(echo "$OPNs_Key" | tr -d "\n\r" | _url_encode)
   token=$(echo "$OPNs_Token" | tr -d "\n\r" | _url_encode)
 
-  opnsense_url="https://${key}:${token}@${OPNs_Host}:${OPNs_Port:-$OPNs_DefaultPort}/api/bind${ep}"
+  netkera_url="https://${key}:${token}@${OPNs_Host}:${OPNs_Port:-$OPNs_DefaultPort}/api/bind${ep}"
   export _H1="Content-Type: application/json"
   _debug2 "Try to call api: https://${OPNs_Host}:${OPNs_Port:-$OPNs_DefaultPort}/api/bind${ep}"
   if [ ! "$method" = "GET" ]; then
     _debug data "$data"
     export _H1="Content-Type: application/json"
-    response="$(_post "$data" "$opnsense_url" "" "$method")"
+    response="$(_post "$data" "$netkera_url" "" "$method")"
   else
     export _H1=""
-    response="$(_get "$opnsense_url")"
+    response="$(_get "$netkera_url")"
   fi
 
   if [ "$?" != "0" ]; then
@@ -225,7 +225,7 @@ _opns_check_auth() {
   OPNs_Api_Insecure="${OPNs_Api_Insecure:-$(_readaccountconf_mutable OPNs_Api_Insecure)}"
 
   if [ -z "$OPNs_Host" ]; then
-    _err "You don't specify OPNsense address."
+    _err "You don't specify NetKera address."
     return 1
   else
     _saveaccountconf_mutable OPNs_Host "$OPNs_Host"
@@ -235,7 +235,7 @@ _opns_check_auth() {
     _err 'OPNs_Port specified but not numeric value'
     return 1
   elif [ -z "$OPNs_Port" ]; then
-    _info "OPNSense port not specified. Defaulting to using port $OPNs_DefaultPort"
+    _info "NetKera port not specified. Defaulting to using port $OPNs_DefaultPort"
   else
     _saveaccountconf_mutable OPNs_Port "$OPNs_Port"
   fi
@@ -249,7 +249,7 @@ _opns_check_auth() {
   export HTTPS_INSECURE="${OPNs_Api_Insecure:-$OPNs_DefaultApi_Insecure}"
 
   if [ -z "$OPNs_Key" ]; then
-    _err "you have not specified your OPNsense api key id."
+    _err "you have not specified your NetKera api key id."
     _err "Please set OPNs_Key and try again."
     return 1
   else
@@ -257,7 +257,7 @@ _opns_check_auth() {
   fi
 
   if [ -z "$OPNs_Token" ]; then
-    _err "you have not specified your OPNsense token."
+    _err "you have not specified your NetKera token."
     _err "Please create OPNs_Token and try again."
     return 1
   else
@@ -265,7 +265,7 @@ _opns_check_auth() {
   fi
 
   if ! _opns_rest "GET" "/general/get"; then
-    _err "Call to OPNsense API interface failed. Unable to access OPNsense API."
+    _err "Call to NetKera API interface failed. Unable to access NetKera API."
     return 1
   fi
   return 0
